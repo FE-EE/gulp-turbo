@@ -26,7 +26,7 @@ gulp.task 'server', ()->
             livereload       : forceLivereload
             host             : '0.0.0.0'
             path             : routerPath
-            port             : if pkg.https then pkg.httpsPort else pkg.httpPort
+            port             : if pkg.https then pkg.httpsPort or 443  else pkg.httpPort
             proxies          : pkg.serverProxies
             https            : pkg.https
             directoryListing :

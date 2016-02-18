@@ -6,7 +6,6 @@
   "vhost":"vhost.xxxx.com",
   "forceLivereload": true,
   "https":false,
-  "httpsPort":443,
   "httpPort": 80,
   "serverProxies": [{
     "source": "/tech-bs",
