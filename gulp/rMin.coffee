@@ -6,6 +6,7 @@ requirejs  = require 'gulp-requirejs'
 sourcemaps = require 'gulp-sourcemaps'
 through    = require 'through2'
 uglify     = require 'gulp-uglify'
+rename     = require 'gulp-rename'
 path       = require 'path'
 md5        = require 'md5'
 turboCache = require '../lib/turboCache'
@@ -55,11 +56,20 @@ rjs = ( opts ) ->
     .pipe through.obj (file, enc, cb)->
       fileMd5 = md5 file.contents
       result = rjs_cache.getFile fileMd5, filepath
+      resultMap = rjs_cache.getFile fileMd5+'.map', filepath+'.map'
       if result
         _filepath = path.join(opts.dest, filepath)
         mkdirSync path.dirname(_filepath)
         util.log '[js turboCache]: ', filepath, ' [', fileMd5, ']'
+        fs.writeFileSync _filepath.replace(/\./, '_'+fileMd5+'.'), result
         fs.writeFileSync _filepath, result
+        # maps
+        if resultMap
+          _mapspath = path.dirname(_filepath)+'/.maps/'
+          _mapsname = path.basename(_filepath)
+          mkdirSync _mapspath
+          fs.writeFileSync _mapspath+_mapsname.replace(/\.js$/, '_'+fileMd5+'.js.map'), resultMap
+          fs.writeFileSync _mapspath+_mapsname, resultMap
       else
         this.push file
         cb()
@@ -73,9 +83,17 @@ rjs = ( opts ) ->
       if !/\.maps/.test(file.path)
         util.log chalk.magenta '[js compress] ', filepath, ' --> ', file.contents.length, 'bytes [', fileMd5, ']'
         rjs_cache.setFile file.contents, fileMd5, filepath
+      else
+        rjs_cache.setFile file.contents, fileMd5+'.map', filepath+'.map'
       this.push file
       cb()
     .pipe plumber.stop()
+    .pipe gulp.dest dist
+    .pipe rename (path)->
+      if path.extname is '.map'
+        path.basename = path.basename.replace /\./, '_'+fileMd5+'.'
+      else
+        path.basename += '_' + fileMd5
     .pipe gulp.dest dist
     cb()
     return
