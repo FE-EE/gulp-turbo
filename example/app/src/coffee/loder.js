@@ -19,7 +19,8 @@
 		// 加载js
 		if(entryPath){
 			var requirejs = wwwroot + "/vender/require.js";
-			var pagejsUrl = wwwroot + '/js/entry/' + entryPath + '_' + conf.js.version + '.js?_v=1';
+			var jsversion = /^\[/.test(conf.js.version) ? '' : ('_' + conf.js.version);
+			var pagejsUrl = wwwroot + '/js/entry/' + entryPath + jsversion + '.js?loder=1';
 			loadScript(requirejs, {'data-main': pagejsUrl});
 		}
 	});
