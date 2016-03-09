@@ -32,7 +32,7 @@
     "gulp-stylus": "^2.1.0",
     "gulp-uglify": "^1.4.2",
     "gulp-util": "^3.0.6",
-    "gulp-webserver": "^0.9.1",
+    "gulp-webserver": "git://github.com/RK-WJW/gulp-webserver.git#3ca6c42a095f7a7b24a26425855ce089531b9a10",
     "gulp-wrap-amd": "^0.5.0",
     "lodash": "^3.10.1",
     "md5": "^2.0.0",
