@@ -4,8 +4,6 @@ util       = require 'gulp-util'
 coffee     = require 'gulp-coffee'
 through    = require 'through2'
 sequence   = require 'gulp-sequence'
-rename     = require 'gulp-rename'
-path       = require 'path'
 plumber    = require "gulp-plumber"
 
 #支持不熟悉coffee的同学直接写js
@@ -31,13 +29,18 @@ gulp.task '_coffee', ()->
 gulp.task '_addRequireConf', ()->
   {approot}  = global.pkg
 
-  requireConfPath = approot + '/dev/js/require-conf.js'
+  # 读取require config配置json数据
+  requireConfPath = approot + '/src/coffee/require-conf.json'
 
   if fs.existsSync requireConfPath
     requireConf = fs.readFileSync requireConfPath, 'utf8'
-    requireConf = requireConf.replace /\[wwwroot\]/g, global.pkg.wwwroot
+    requireConfJson = JSON.parse requireConf
+    # 对config添加baseUrl设置
+    requireConfJson.baseUrl = global.pkg.wwwroot + '/js/'
     
-    gulp.src [approot + '/dev/js/entry/**/*.js', '!'+approot+'/dev/js/entry/**/*_loder.js']
+    requireConf = 'require.config(' + JSON.stringify(requireConfJson) + ');'
+    
+    gulp.src [approot + '/dev/js/entry/**/*.js']
       .pipe through.obj (file, enc, cb)->
           contents = requireConf + '\n' + file.contents.toString()
           file.contents = new Buffer contents
@@ -45,25 +48,6 @@ gulp.task '_addRequireConf', ()->
           cb()
       .pipe gulp.dest approot+'/dev/js/entry/'
 
-# 生成loder
-gulp.task '_buildLoder', ()->
-  {approot}  = global.pkg
-
-  loderPath = approot + '/dev/js/loder.js'
-  
-  if fs.existsSync loderPath
-    gulp.src [approot + '/dev/js/entry/**/*.js', '!'+approot+'/dev/js/entry/**/*_loder.js']
-      .pipe through.obj (file, enc, cb)->
-          loderCon = fs.readFileSync loderPath, 'utf8'
-          filename = path.basename file.path, '.js'
-          loderCon = loderCon.replace /\[entryPath\]/g, filename
-          file.contents = new Buffer loderCon
-          this.push file
-          cb()
-      .pipe rename (path)->
-        path.basename += '_loder'
-      .pipe gulp.dest approot+'/dev/js/entry/'
-
 # coffee
 gulp.task 'coffee', (cb)->
-  sequence '_cpJs', '_coffee', '_addRequireConf', '_buildLoder', 'clean:dev-loderAndConf', cb
+  sequence '_cpJs', '_coffee', '_addRequireConf', cb

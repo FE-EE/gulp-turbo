@@ -18,7 +18,7 @@ require([
         	document.body.appendChild(o)	
 		}
 		
-
+		// console.error 123
 		/**
 		 * 按依赖顺序执行模块的init方法。
 		 * @return {[type]} [description]
