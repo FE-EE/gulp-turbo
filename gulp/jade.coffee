@@ -1,5 +1,6 @@
 gulp   = require 'gulp'
 plumber = require "gulp-plumber"
+jade = require "gulp-jade"
 
 #jade
 gulp.task 'jade', ()->

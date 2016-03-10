@@ -4,12 +4,22 @@ gulp       = require 'gulp'
 rev        = require 'gulp-rev'
 revReplace = require 'gulp-rev-replace'
 useref     = require 'gulp-useref'
-# filter     = require 'gulp-filter'
 through    = require 'through2'
 revHash    = require 'rev-hash'
 _          = require 'lodash'
-moment     = require 'moment'
 mkdir      = require 'mkdirp'
+header     = require 'gulp-header'
+filter     = require 'gulp-filter'
+rename     = require 'gulp-rename'
+
+turboPkg = global.turboPkg
+projectPkg = global.projectPkg
+banner = ['/**',
+  ' * '+projectPkg.name+' v'+projectPkg.version,
+  ' * @hash #{hash}',
+  ' * @by '+turboPkg.name+' v'+turboPkg.version+' '+turboPkg.homepage,
+  ' */',
+  ''].join('\n')
 
 gulp.task 'loder-build', ()->
 	pkg = global.pkg
@@ -17,6 +27,9 @@ gulp.task 'loder-build', ()->
 	# html中loder引入部分
 	loderHTMLC = '<div class="hide script-box"><base><script>document.write(\'<script role="loder" src="#{loderSrc}?_t=\' + new Date().getTime() +\'"><\\\/script>\');</script></div>'
 	
+	# filter
+	htmlFilter = filter '**/*.html', {restore: true}
+
 	# 记录当前正在处理的页面js主文件
 	jsMainPath = ''
 	return gulp.src approot+'/dist/html/*.html'
@@ -30,18 +43,22 @@ gulp.task 'loder-build', ()->
 		.pipe revReplace({
 			prefix: wwwroot+'/'
 		})
+		# html处理
+		.pipe htmlFilter
+		.pipe rename (path)->
+	      path.dirname += '/html'
+	      path.basename = path.basename.replace(/\-\w{10}$/, '')
+	      return path
 		.pipe through.obj (file, enc, cb)->
-			if /\.html$/.test(file.path)
-				# 构建loder文件
-				if jsMainPath
-					contents = buildLoder file.contents.toString(), jsMainPath
-					jsMainPath = ''
-					# 处理html文件，html文件不加hash后缀，并且输出到html目录下
-					# fs.writeFileSync approot+'/dist/html/'+path.basename(file.path), contents
-					fs.writeFileSync approot+'/dist/html/'+path.basename(file.path).replace(/\-\w{10}\.html/, '.html'), contents
-			else
-				this.push file
+			# 构建loder文件
+			if jsMainPath
+				contents = buildLoder file.contents.toString(), jsMainPath
+				jsMainPath = ''
+				file.contents = new Buffer contents
+			this.push file
 			cb()
+		.pipe htmlFilter.restore
+		# html处理 end
 		.pipe gulp.dest approot+'/dist'
 
 # publish任务虽然放在了rMin后面，rMin执行后再执行，但存在问题，虽然看似rMin执行完了，但这个时候直接读取dist下js文件时，依然提示不存在，抛出错误
@@ -70,10 +87,10 @@ buildLoder = (content, jsMainPath)->
 	{approot,distPath,wwwroot} = pkg
 
 	loderTpl = [
-		'/** loder v2.0 **/\n(function (window, undefined){',
+		'(function (){',
 			'var conts = #{conts};',
 			'document.write(conts.join(""));',
-		'})(window);\n/** update '+moment().format('YYYY-MM-DD hh:mm:ss')+' **/'
+		'})();'
 	].join('')
 	startFlag = '<!-- loder control -->'
 	endFlag = '<!-- endloder -->'
@@ -101,6 +118,9 @@ buildLoder = (content, jsMainPath)->
 	getJsMainPath jsMainPath, (jspath)->
 		jspath = wwwroot+'/js/'+jspath
 		conts.push mainJs.replace(/\#\{mainJs\}/, jspath)
-		mkdirp.sync approot+'/dist/js/loder/'
-		fs.writeFileSync approot+'/dist/js/loder/'+path.basename(jsMainPath)+'.js', loderTpl.replace(/\#\{conts\}/, JSON.stringify(conts))
+		mkdir.sync approot+'/dist/js/loder/'
+		loderPath = approot+'/dist/js/loder/'+path.basename(jsMainPath)+'.js'
+		loderCont = loderTpl.replace(/\#\{conts\}/, JSON.stringify(conts))
+		loderCont = banner.replace(/\#\{hash\}/g, revHash(new Buffer(loderCont)))+loderCont
+		fs.writeFileSync loderPath, loderCont
 	return content

@@ -12,7 +12,15 @@ md5        = require 'md5'
 turboCache = require '../lib/turboCache'
 mkdir      = require 'mkdirp'
 plumber    = require "gulp-plumber"
+header     = require 'gulp-header'
 # revHash    = require 'rev-hash'
+
+banner = ['/**',
+  ' * <%= projectPkg.name %> v<%= projectPkg.version %>',
+  ' * @update <%= projectPkg.currentDate %>',
+  ' * @by <%= turboPkg.name %> v<%= turboPkg.version %> <%= turboPkg.homepage %>',
+  ' */',
+  ''].join('\n')
 
 rjs_cache = {}
 # 兼容老版本 合并压缩entry目录下的main JS
@@ -67,7 +75,7 @@ rjs = ( opts ) ->
       resultMap = rjs_cache.getFile fileMd5+'.map', filepath+'.map'
       if result
         _filepath = path.join(opts.dest, filepath)
-        mkdirp.sync path.dirname(_filepath)
+        mkdir.sync path.dirname(_filepath)
         util.log '[js turboCache]: ', filepath, ' [', fileMd5, ']'
         # fs.writeFileSync _filepath.replace(/\./, '_'+fileMd5+'.'), result
         fs.writeFileSync _filepath, result
@@ -75,7 +83,7 @@ rjs = ( opts ) ->
         if resultMap
           _mapspath = path.dirname(_filepath)+'/.maps/'
           _mapsname = path.basename(_filepath)
-          mkdirp.sync _mapspath
+          mkdir.sync _mapspath
           # fs.writeFileSync _mapspath+_mapsname.replace(/\.js$/, '_'+fileMd5+'.js.map'), resultMap
           fs.writeFileSync _mapspath+_mapsname+'.map', resultMap
       else
@@ -86,6 +94,7 @@ rjs = ( opts ) ->
       output:
         beautify: false
         indent_level: 1
+    .pipe header(banner, global)
     .pipe sourcemaps.write '.maps'
     .pipe through.obj (file, enc, cb)->
       if !/\.maps/.test(file.path)
