@@ -68,8 +68,7 @@ rjs = ( opts ) ->
           _mapspath = path.dirname(_filepath)+'/.maps/'
           _mapsname = path.basename(_filepath)
           mkdirSync _mapspath
-          fs.writeFileSync _mapspath+_mapsname.replace(/\.js$/, '_'+fileMd5+'.js.map'), resultMap
-          fs.writeFileSync _mapspath+_mapsname, resultMap
+          fs.writeFileSync _mapspath+_mapsname+'.map', resultMap
       else
         this.push file
         cb()
@@ -90,10 +89,9 @@ rjs = ( opts ) ->
     .pipe plumber.stop()
     .pipe gulp.dest dist
     .pipe rename (path)->
-      if path.extname is '.map'
-        path.basename = path.basename.replace /\./, '_'+fileMd5+'.'
-      else
+      if path.extname is '.js'
         path.basename += '_' + fileMd5
+      return path
     .pipe gulp.dest dist
     cb()
     return
