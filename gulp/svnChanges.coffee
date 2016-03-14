@@ -22,7 +22,7 @@ gulp.task 'svnChanges', ()->
   svnUpdate = execSync('svn update', {cwd: svnDir, encoding: 'utf8'})
   svnInfo = execSync('svn info', {cwd: svnDir, encoding: 'utf8'})
   svnRoot = svnInfo.match(/Repository\sRoot:\s([^\s]+)/)[1]
-  revision = svnInfo.match(/Revision:\s(\d+)/)[1]
+  revision = lastVersion ||svnInfo.match(/Revision:\s(\d+)/)[1]
   resultFileName = 'svn_changelist_'+revision+ '.txt'
   append = append || revision
   if lastVersion
