@@ -197,7 +197,7 @@ gulp dist
 
 #### 便捷的移动端调试（默认开启htpp代理服务，端口8989,可以代替fiddler或charles.）
 
-```json 
+``` 
 // 代理服务器端口。 通常用于调试移动端，抓包，替换请求. 类似fiddler或者charlse
   "proxyPort": 8989,
 
