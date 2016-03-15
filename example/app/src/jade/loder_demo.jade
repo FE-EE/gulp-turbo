@@ -1,11 +1,11 @@
 extends layout/main
 
 block head
-	// loder control 
+	//- // loder control 
 	// build:css css/main.css 
 	link(rel="stylesheet" type="text/css" href="../css/main.css")
 	// endbuild
-	// endloder 
+	//- // endloder 
 	title turbo demo
 	script.
 		var $CONFIG = {
@@ -15,6 +15,7 @@ block head
 		}
 block body
 block footer
-	// build:requirejs entry/loder_demo
-	script(data-main="../js/entry/loder_demo" src="../vender/require.js")
+	script(src="../vender/require.js")
+	// build:js js/entry/loder_demo.js
+	script(src="../js/entry/loder_demo.js")
 	// endbuild
