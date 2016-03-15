@@ -18,6 +18,7 @@ gulp.task 'init', ( cb ) ->
     "#{stylus}/font"
     "#{coffee}/lib"
     "#{coffee}/module"
+    "#{coffee}/entry"
     "#{vender}"
     "#{img}"
     "#{mock}"

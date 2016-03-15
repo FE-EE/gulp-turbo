@@ -1,16 +1,21 @@
 extends layout/main
 
 block head
-	link(rel="stylesheet" type="text/css" loder-src="#{wwwroot}/css/main.css")
+	//- // loder control 
+	// build:css css/main.css 
+	link(rel="stylesheet" type="text/css" href="../css/main.css")
+	// endbuild
+	//- // endloder 
 	title turbo demo
 	script.
-		var $CONFIG = !{JSON.stringify($CONFIG)};
-		var wwwroot = "!{wwwroot}";
+		var $CONFIG = {
+			title: "turbo test title",
+			content: "这就是内容了，呵呵~",
+			tableHead:["单元格1","单元格2"]
+		}
 block body
 block footer
-	.hide.script-box
-		base
-		script.
-			//- loder_demo_loder.js 为入口文件loder_demo的伴生文件
-			document.write('<script role="loder" src="'+ wwwroot + '/js/entry/loder_demo_loder.js?_t=' + new Date().getTime() +'"><\/script>');
- 
+	script(src="../vender/require.js")
+	// build:js js/entry/loder_demo.js
+	script(src="../js/entry/loder_demo.js")
+	// endbuild

@@ -10,8 +10,17 @@ rename     = require 'gulp-rename'
 path       = require 'path'
 md5        = require 'md5'
 turboCache = require '../lib/turboCache'
-mkdirSync  = require '../lib/mkdirSync'
-plumber = require "gulp-plumber"
+mkdir      = require 'mkdirp'
+plumber    = require "gulp-plumber"
+header     = require 'gulp-header'
+# revHash    = require 'rev-hash'
+
+banner = ['/**',
+  ' * <%= projectPkg.name %> v<%= projectPkg.version %>',
+  ' * @update <%= projectPkg.currentDate %>',
+  ' * @by <%= turboPkg.name %> v<%= turboPkg.version %> <%= turboPkg.homepage %>',
+  ' */',
+  ''].join('\n')
 
 rjs_cache = {}
 # 兼容老版本 合并压缩entry目录下的main JS
@@ -21,6 +30,8 @@ gulp.task 'rMin', ()->
   
   rjs_cache = turboCache pkg.base
 
+  # js目录下的所有js文件
+  # js/entry目录下(包括子目录)的所有js文件，排除loder(_loder.js)伴生文件
   gulp.src [approot+'/dev/js/*.js', approot+'/dev/js/entry/**/*.js', '!'+approot+'/dev/js/entry/**/*_loder.js'],
       read: false
     .pipe rjs
@@ -29,10 +40,15 @@ gulp.task 'rMin', ()->
 
 rjs = ( opts ) ->
   through.obj ( file, enc, cb ) ->
+    # 文件名带后缀名
     fname = path.basename file.path
+    # 文件名截掉后缀名
     filename = path.basename file.path, '.js'
+    # 文件所在目录
     filedir = path.dirname file.path
+    # 目录所在相对(opts.base)路径
     relativePath = path.relative(opts.base, filedir).replace(/\\+/g, '\/')
+    # 文件所在相对(opts.base)路径
     filepath = path.relative opts.base, file.path
 
     mainConfigFile = filedir + '/' + fname
@@ -59,15 +75,16 @@ rjs = ( opts ) ->
       resultMap = rjs_cache.getFile fileMd5+'.map', filepath+'.map'
       if result
         _filepath = path.join(opts.dest, filepath)
-        mkdirSync path.dirname(_filepath)
+        mkdir.sync path.dirname(_filepath)
         util.log '[js turboCache]: ', filepath, ' [', fileMd5, ']'
-        fs.writeFileSync _filepath.replace(/\./, '_'+fileMd5+'.'), result
+        # fs.writeFileSync _filepath.replace(/\./, '_'+fileMd5+'.'), result
         fs.writeFileSync _filepath, result
         # maps
         if resultMap
           _mapspath = path.dirname(_filepath)+'/.maps/'
           _mapsname = path.basename(_filepath)
-          mkdirSync _mapspath
+          mkdir.sync _mapspath
+          # fs.writeFileSync _mapspath+_mapsname.replace(/\.js$/, '_'+fileMd5+'.js.map'), resultMap
           fs.writeFileSync _mapspath+_mapsname+'.map', resultMap
       else
         this.push file
@@ -77,6 +94,7 @@ rjs = ( opts ) ->
       output:
         beautify: false
         indent_level: 1
+    .pipe header(banner, global)
     .pipe sourcemaps.write '.maps'
     .pipe through.obj (file, enc, cb)->
       if !/\.maps/.test(file.path)
@@ -88,10 +106,11 @@ rjs = ( opts ) ->
       cb()
     .pipe plumber.stop()
     .pipe gulp.dest dist
-    .pipe rename (path)->
-      if path.extname is '.js'
-        path.basename += '_' + fileMd5
-      return path
-    .pipe gulp.dest dist
+    # .pipe rename (path)->
+    #   if path.extname is '.map'
+    #     path.basename = path.basename.replace /\./, '_'+fileMd5+'.'
+    #   else
+    #     path.basename += '_' + fileMd5
+    # .pipe gulp.dest dist
     cb()
     return

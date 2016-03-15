@@ -36,7 +36,7 @@ gulp.task 'watch',[],()->
   if distMode=='dist'
     rMinFn = ()->
       # gulp.run 'rMin'
-      sequence 'rMin', 'loderMin', ()->
+      sequence 'rMin', 'loder-build', ()->
         # console.log 'rMinFn'
     rMinFn = delay rMinFn, 800
     dist_watcher = gulp.watch [approot + '/dev/**/*.js'], (event)->
