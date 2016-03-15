@@ -93,10 +93,10 @@ npm init
   //代理规则(支持正则，可以设置多个规则)
   "proxyRule": [{
 
-    //替换规则
+    // 替换规则
     "pattern": "xxx.b.com/skyfire/ssu/editBefore1",
 
-    //用于响应的文件
+    // 用于响应的文件
     "responder": "/Users/kings/didi/prod/fe-scaffold-v1/app/dev/html/page1.html"
   }]
 }
