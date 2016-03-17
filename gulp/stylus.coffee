@@ -7,6 +7,7 @@ through    = require 'through2'
 _          = require 'lodash'
 path       = require 'path'
 plumber = require "gulp-plumber"
+gulpif = require "gulp-if"
 
 # stylus - with sourcemaps
 gulp.task 'stylus', ()->
@@ -15,15 +16,15 @@ gulp.task 'stylus', ()->
   if(distMode is 'dist')
     isCompress = true
 
-  gulp.src [base+'/'+approot+'/src/stylus/**/*.styl','!'+base+'/'+approot+'/src/stylus/module/**/*.styl']
+  gulp.src [approot+'/src/stylus/**/*.styl','!'+approot+'/src/stylus/module/**/*.styl']
     .pipe plumber()
-    .pipe sourcemaps.init()
+    .pipe gulpif(isCompress, sourcemaps.init())
     .pipe stylus
       compress: isCompress
     .pipe through.obj (file, enc, cb)->
       util.log chalk.cyan('[stylus compress] ', path.relative(approot + '/src/stylus/', file.path), ' --> ', file.contents.length, 'bytes')
       this.push file
       cb()
-    .pipe sourcemaps.write '.maps'
+    .pipe gulpif(isCompress, sourcemaps.write('.maps'))
     .pipe plumber.stop()
-    .pipe gulp.dest base+'/'+distPath+'/css/'
+    .pipe gulp.dest distPath+'/css/'

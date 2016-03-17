@@ -5,49 +5,37 @@ coffee     = require 'gulp-coffee'
 through    = require 'through2'
 sequence   = require 'gulp-sequence'
 plumber    = require "gulp-plumber"
-
-#支持不熟悉coffee的同学直接写js
-gulp.task '_cpJs', ()->
-  {approot}  = global.pkg
-
-  gulp.src approot+'/src/coffee/**/*.js'
-    .pipe gulp.dest approot+'/dev/js'
+filter     = require 'gulp-filter'
 
 # coffee编译
-gulp.task '_coffee', ()->
+#支持不熟悉coffee的同学直接写js
+gulp.task 'coffee', ()->
   {approot}  = global.pkg
+
+  coffeeFilter = filter '**/*.coffee', {restore: true}
   
-  gulp.src [approot+'/src/coffee/**/*.coffee']
-    .pipe plumber()
-    .pipe coffee
-            bare: true
-          .on 'error', util.log
-    .pipe plumber.stop()
-    .pipe gulp.dest approot+'/dev/js'
-
-# 拼装config
-gulp.task '_addRequireConf', ()->
-  {approot}  = global.pkg
-
   # 读取require config配置json数据
   requireConfPath = approot + '/src/coffee/require-conf.json'
-
   if fs.existsSync requireConfPath
     requireConf = fs.readFileSync requireConfPath, 'utf8'
     requireConfJson = JSON.parse requireConf
     # 对config添加baseUrl设置
     requireConfJson.baseUrl = global.pkg.wwwroot + '/js/'
-    
     requireConf = 'require.config(' + JSON.stringify(requireConfJson) + ');'
-    
-    gulp.src [approot + '/dev/js/entry/**/*.js']
-      .pipe through.obj (file, enc, cb)->
-          contents = requireConf + '\n' + file.contents.toString()
-          file.contents = new Buffer contents
-          this.push file
-          cb()
-      .pipe gulp.dest approot+'/dev/js/entry/'
 
-# coffee
-gulp.task 'coffee', (cb)->
-  sequence '_cpJs', '_coffee', '_addRequireConf', cb
+  gulp.src [approot+'/src/coffee/**/*.js', approot+'/src/coffee/**/*.coffee']
+    .pipe plumber()
+    .pipe coffeeFilter
+    .pipe coffee
+            bare: true
+          .on 'error', util.log
+    .pipe coffeeFilter.restore
+    .pipe through.obj (file, enc, cb)->
+      if /coffee[\/\\]+entry/.test(file.path) && requireConf
+        # console.log file.path
+        contents = requireConf + '\n' + file.contents.toString()
+        file.contents = new Buffer contents
+      this.push file
+      cb()
+    .pipe plumber.stop()
+    .pipe gulp.dest approot+'/dev/js'

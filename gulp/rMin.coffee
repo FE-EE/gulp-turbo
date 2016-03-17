@@ -14,7 +14,6 @@ turboCache = require '../lib/turboCache'
 mkdir      = require 'mkdirp'
 plumber    = require "gulp-plumber"
 header     = require 'gulp-header'
-# revHash    = require 'rev-hash'
 
 banner = ['/**',
   ' * <%= projectPkg.name %> v<%= projectPkg.version %>',
