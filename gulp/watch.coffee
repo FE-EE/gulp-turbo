@@ -9,7 +9,7 @@ gulp.task 'watch',[],()->
   {approot,wwwroot,distMode} = pkg
 
   # jade
-  jade_watcher = gulp.watch approot + '/src/**/*.jade', ['jadeToJs','jade']
+  jade_watcher = gulp.watch [approot + '/src/**/*.jade',approot + '/src/jade/**/*.json'], ['jadeToJs','jade']
   jade_watcher.on 'change', (event)->
     util.log chalk.green('[File change] ') + event.path + ' was ' + event.type + ', running jade tasks...'
 
