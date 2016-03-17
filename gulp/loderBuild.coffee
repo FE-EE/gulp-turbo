@@ -35,6 +35,13 @@ gulp.task 'loder-build', ()->
 	return gulp.src approot+'/dist/html/*.html'
 		.pipe useref({
 			requirejs: (content, target, options)->
+				jsMainHashs = global.jsMainHashs
+				cHash = jsMainHashs[target.replace(/(\\+)|(\/+)/g, '')]
+				if cHash
+					_jsMainPath = wwwroot+'/'+target.replace('.js', '-'+cHash+'.js')
+					content = content.replace(/data\-main=['"]{1}[^\s]+['"]{1}/, 'data-main="'+_jsMainPath+'"')
+				return content
+			requirejs_loder: (content, target, options)->
 				jsMainPath = target
 				jsMainRevHash target
 				return loderHTMLC.replace /\#\{loderSrc\}/g, wwwroot+'/js/loder/'+path.basename(target)+'.js'
@@ -46,9 +53,9 @@ gulp.task 'loder-build', ()->
 		# html处理
 		.pipe htmlFilter
 		.pipe rename (path)->
-	      path.dirname += '/html'
-	      path.basename = path.basename.replace(/\-\w{10}$/, '')
-	      return path
+			path.dirname += '/html'
+			path.basename = path.basename.replace(/\-\w{10}$/, '')
+			return path
 		.pipe through.obj (file, enc, cb)->
 			# 构建loder文件
 			if jsMainPath
@@ -60,6 +67,25 @@ gulp.task 'loder-build', ()->
 		.pipe htmlFilter.restore
 		# html处理 end
 		.pipe gulp.dest approot+'/dist'
+
+
+buildRequirejs = (target)->
+	pkg = global.pkg
+	{approot,distPath,wwwroot} = pkg
+
+	_jsMainPath = approot+'/dist/js/'+target+'.js'
+	buildHashJs = ()->
+		try
+			fs.accessSync _jsMainPath
+			jsMainContent = fs.readFileSync _jsMainPath
+			jsHash = revHash jsMainContent
+			fs.writeFileSync _jsMainPath.replace(/\.js$/, '-'+jsHash+'.js'), jsMainContent
+			cb wwwroot+'/'+target.replace(/\.js$/, '-'+jsHash+'.js')
+		catch e
+			setTimeout ()->
+				buildHashJs()
+			,50
+	buildHashJs()
 
 # publish任务虽然放在了rMin后面，rMin执行后再执行，但存在问题，虽然看似rMin执行完了，但这个时候直接读取dist下js文件时，依然提示不存在，抛出错误
 # 暂时先只好这样了

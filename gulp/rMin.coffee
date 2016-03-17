@@ -8,7 +8,8 @@ through    = require 'through2'
 uglify     = require 'gulp-uglify'
 rename     = require 'gulp-rename'
 path       = require 'path'
-md5        = require 'md5'
+# md5        = require 'md5'
+revHash    = require 'rev-hash'
 turboCache = require '../lib/turboCache'
 mkdir      = require 'mkdirp'
 plumber    = require "gulp-plumber"
@@ -37,7 +38,7 @@ gulp.task 'rMin', ()->
     .pipe rjs
       base: approot+'/dev/js/'
       dest: approot+'/dist/js/'
-
+global.jsMainHashs = {}
 rjs = ( opts ) ->
   through.obj ( file, enc, cb ) ->
     # 文件名带后缀名
@@ -70,15 +71,16 @@ rjs = ( opts ) ->
       findNestedDependencies: true
     .pipe plumber()
     .pipe through.obj (file, enc, cb)->
-      fileMd5 = md5 file.contents
+      fileMd5 = revHash file.contents
+      jsMainHashs['js'+filepath.replace(/(\\+)|(\/+)/g, '')] = fileMd5
       result = rjs_cache.getFile fileMd5, filepath
       resultMap = rjs_cache.getFile fileMd5+'.map', filepath+'.map'
       if result
         _filepath = path.join(opts.dest, filepath)
         mkdir.sync path.dirname(_filepath)
         util.log '[js turboCache]: ', filepath, ' [', fileMd5, ']'
-        # fs.writeFileSync _filepath.replace(/\./, '_'+fileMd5+'.'), result
-        fs.writeFileSync _filepath, result
+        fs.writeFileSync _filepath.replace(/\./, '-'+fileMd5+'.'), result
+        # fs.writeFileSync _filepath, result
         # maps
         if resultMap
           _mapspath = path.dirname(_filepath)+'/.maps/'
@@ -104,13 +106,10 @@ rjs = ( opts ) ->
         rjs_cache.setFile file.contents, fileMd5+'.map', filepath+'.map'
       this.push file
       cb()
+    .pipe rename (path)->
+      if path.extname is '.js'
+        path.basename += '-' + fileMd5
     .pipe plumber.stop()
     .pipe gulp.dest dist
-    # .pipe rename (path)->
-    #   if path.extname is '.map'
-    #     path.basename = path.basename.replace /\./, '_'+fileMd5+'.'
-    #   else
-    #     path.basename += '_' + fileMd5
-    # .pipe gulp.dest dist
     cb()
     return
