@@ -81,7 +81,7 @@ rjs = ( opts ) ->
         mkdir.sync path.dirname(_filepath)
         util.log '[js turboCache]: ', filepath, ' [', fileMd5, ']'
         fs.writeFileSync _filepath.replace(/\./, '-'+fileMd5+'.'), result
-        # fs.writeFileSync _filepath, result
+        fs.writeFileSync _filepath, result
         # maps
         if resultMap
           _mapspath = path.dirname(_filepath)+'/.maps/'
@@ -107,10 +107,11 @@ rjs = ( opts ) ->
         rjs_cache.setFile file.contents, fileMd5+'.map', filepath+'.map'
       this.push file
       cb()
+    .pipe plumber.stop()
+    .pipe gulp.dest dist
     .pipe rename (path)->
       if path.extname is '.js'
         path.basename += '-' + fileMd5
-    .pipe plumber.stop()
     .pipe gulp.dest dist
     cb()
     return

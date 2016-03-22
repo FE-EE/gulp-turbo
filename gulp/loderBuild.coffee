@@ -57,11 +57,14 @@ gulp.task 'loder-build', ()->
 			path.basename = path.basename.replace(/\-\w{10}$/, '')
 			return path
 		.pipe through.obj (file, enc, cb)->
+			contents = file.contents.toString()
 			# 构建loder文件
 			if jsMainPath
-				contents = buildLoder file.contents.toString(), jsMainPath
+				contents = buildLoder contents, jsMainPath
 				jsMainPath = ''
-				file.contents = new Buffer contents
+			if pkg.isRemoveHash
+				contents = contents.replace(/\-[0-9a-z]{10}\.(js|css)/g, '.$1')
+			file.contents = new Buffer contents
 			this.push file
 			cb()
 		.pipe htmlFilter.restore
