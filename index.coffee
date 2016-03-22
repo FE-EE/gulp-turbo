@@ -2,7 +2,6 @@ _    = require 'lodash'
 path = require 'path'
 util = require 'gulp-util'
 chalk = require 'chalk'
-moment     = require 'moment'
 requireDir = require 'require-dir'
 defaultConf = require path.join(process.cwd(), './project-conf.json')
 projectPkg = require path.join(process.cwd(), './package.json')
@@ -36,7 +35,6 @@ extconf =
 
 global.pkg = _.assign defaultConf, extconf
 
-projectPkg.currentDate = moment().format('YYYY-MM-DD HH:mm:ss')
 global.turboPkg = turboPkg
 global.projectPkg = projectPkg
 

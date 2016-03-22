@@ -14,10 +14,11 @@ turboCache = require '../lib/turboCache'
 mkdir      = require 'mkdirp'
 plumber    = require "gulp-plumber"
 header     = require 'gulp-header'
+moment     = require 'moment'
 
 banner = ['/**',
   ' * <%= projectPkg.name %> v<%= projectPkg.version %>',
-  ' * @update <%= projectPkg.currentDate %>',
+  ' * @update <%= last_rMin_Date %>',
   ' * @by <%= turboPkg.name %> v<%= turboPkg.version %> <%= turboPkg.homepage %>',
   ' */',
   ''].join('\n')
@@ -29,7 +30,7 @@ gulp.task 'rMin', ()->
   {approot,distPath} = pkg
   
   rjs_cache = turboCache pkg.base
-
+  global.last_rMin_Date = moment().format('YYYY-MM-DD HH:mm:ss')
   # js目录下的所有js文件
   # js/entry目录下(包括子目录)的所有js文件，排除loder(_loder.js)伴生文件
   gulp.src [approot+'/dev/js/*.js', approot+'/dev/js/entry/**/*.js', '!'+approot+'/dev/js/entry/**/*_loder.js'],
@@ -37,6 +38,7 @@ gulp.task 'rMin', ()->
     .pipe rjs
       base: approot+'/dev/js/'
       dest: approot+'/dist/js/'
+
 global.jsMainHashs = {}
 rjs = ( opts ) ->
   through.obj ( file, enc, cb ) ->
