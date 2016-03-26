@@ -8,6 +8,8 @@ _          = require 'lodash'
 path       = require 'path'
 plumber = require "gulp-plumber"
 gulpif = require "gulp-if"
+autoprefixer = require 'gulp-autoprefixer'
+minifyCSS = require 'gulp-minify-css'
 
 # stylus - with sourcemaps
 gulp.task 'stylus', ()->
@@ -18,13 +20,15 @@ gulp.task 'stylus', ()->
 
   gulp.src [approot+'/src/stylus/**/*.styl','!'+approot+'/src/stylus/module/**/*.styl']
     .pipe plumber()
-    .pipe gulpif(isCompress, sourcemaps.init())
+    # .pipe gulpif(isCompress, sourcemaps.init())
     .pipe stylus
-      compress: isCompress
-    .pipe through.obj (file, enc, cb)->
+      compress: false
+    .pipe autoprefixer()
+    .pipe gulpif isCompress,minifyCSS()
+    .pipe gulpif isCompress,through.obj (file, enc, cb)->
       util.log chalk.cyan('[stylus compress] ', path.relative(approot + '/src/stylus/', file.path), ' --> ', file.contents.length, 'bytes')
       this.push file
       cb()
-    .pipe gulpif(isCompress, sourcemaps.write('.maps'))
+    # .pipe gulpif(isCompress, sourcemaps.write('.maps'))
     .pipe plumber.stop()
     .pipe gulp.dest distPath+'/css/'

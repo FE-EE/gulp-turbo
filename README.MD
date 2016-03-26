@@ -1,4 +1,4 @@
-## gulp-Turbo v2.0.4
+## gulp-Turbo v2.0.5
 > 译:涡轮增压器， 前端工作流，为前端开发联调加速。
 
 ### 前端工作流 功能说明
@@ -229,6 +229,7 @@ gulp dist
 
 
 #### change log
+    [03.26] - 添加css autoprefixer
     [03.09] - 调整loder，针对loder逻辑透明化处理，并重新整合静态资源。此次调整新建为2.x.x分支，不兼容之前版本(<2.0.0)。
     [02.19] - js资源文件名添加MD5后缀形式，对应调整loder，每次dist时添加clean操作，会清除dist和dev目录
     [02.18] - 支持https
