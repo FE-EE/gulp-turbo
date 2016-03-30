@@ -19,7 +19,7 @@ gulp.task 'jade', ()->
   toDist = lazypipe()
     .pipe gulp.dest,approot+'/dist/'
 
-  gulp.src [approot+'/src/jade/**/*.jade', '!'+approot+'/src/jade/layout/*.*']
+  gulp.src [approot+'/src/jade/**/*.jade', '!'+approot+'/src/jade/layout/**/*.*']
     .pipe plumber()
     .pipe tojsFilter
     .pipe jade
