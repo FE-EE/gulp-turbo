@@ -28,7 +28,7 @@ gulp.task 'jade', ()->
       deps: ['jade'],
       params: ['jade']
     .pipe rename (path)->
-      path.dirname += '/../js/tpl/'
+      path.dirname = path.dirname.replace 'module', 'js/tpl'
       return path
     .pipe tojsFilter.restore
     .pipe tohtmlFilter
