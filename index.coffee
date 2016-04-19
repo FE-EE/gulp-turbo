@@ -7,13 +7,11 @@ defaultConf = require path.join(process.cwd(), './project-conf.json')
 projectPkg = require path.join(process.cwd(), './package.json')
 turboPkg = require './package.json'
 
-{approot,distMode,domain,vhost,routerPath,httpPort} = defaultConf
+{approot,distMode,domain,routerPath,httpPort} = defaultConf
 
 defaultConf.routerPath = routerPath = '/'+routerPath.replace(/^\//,'')
 
 domain     = domain.replace /^https?:\/\/|^\/\//, '//'
-vhost      = vhost.replace /^https?:\/\/|^\/\//, '//'
-				  .replace /\/$|\\$/,''
 domain     = domain+':'+httpPort if httpPort*1 != 80
 
 wwwroot    = (domain+routerPath.replace(/^\/\//,'/'))
@@ -31,7 +29,6 @@ extconf =
     base     : path.resolve approot,'../'
     distPath : approot+'/'+distMode
     wwwroot  : wwwroot
-    vhost	 : vhost
 
 global.pkg = _.assign defaultConf, extconf
 

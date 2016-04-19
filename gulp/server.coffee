@@ -2,6 +2,8 @@ gulp            = require 'gulp'
 pkg             = global.pkg
 util            = require 'gulp-util'
 fs              = require 'fs'
+dns             = require 'dns'
+request         = require 'request'
 url             = require 'url'
 path            = require 'path'
 webserver       = require 'gulp-webserver'
@@ -12,7 +14,7 @@ forceLivereload = if typeof(pkg.forceLivereload != 'undefined') then !!pkg.force
 # webserver
 gulp.task 'server', ()->
     util.log 'approot',pkg.approot
-    {base,approot,vhost,routerPath,distPath,wwwroot} = pkg
+    {base,approot,isLucency,routerPath,distPath,wwwroot} = pkg
 
     # dist
     if pkg.distMode is 'dist'
@@ -72,44 +74,27 @@ gulp.task 'server', ()->
                 next()
                 return
               catch err
-                if !vhost
+                if !isLucency
                   next()
                   return
-                proxyURL  = vhost+req.url
-                oProxyURL = url.parse proxyURL, true
-                oProxyURL.protocol or= 'http'
-                httpLib  = oProxyURL.protocol.replace(/\:/,'')
-                request  = require(httpLib).request
-
-                #make proxy url
-                proxyURL = httpLib+'://'+proxyURL.replace(/^.*\/\/(.*)$/, '$1') 
-                util.log chalk.magenta '本地资源不存在，触发透明代理 : '+proxyURL
-                
-                # vhost
-                myReq = request proxyURL, (myRes)->
-                  {statusCode,headers,host} = myRes
-                  res.writeHead statusCode, headers, host
-                  util.log chalk.magenta 'http code : '+statusCode
-                  myRes.on 'error', (err)->
-                    console.log 'err',err
-                    next err
-                  myRes.pipe res
-
-                myReq.on 'error', (err)->
-                  console.log 'myReq error',err
-                  if err.code is 'ETIMEDOUT'
-                    util.log chalk.magenta '访问超时'
+                dns.resolve4 req.headers.host, (err, addresses)->
+                  if err
+                    res.writeHeader 500, 
+                      'content-type': 'text/html'
+                    res.write req.url
+                    res.write err.toString()
+                    res.end()
                   else
-                    console.log 'myReq error',err
-                  next()
-                
-                if !req.readable
-                  console.log '!req.readable'
-                  myReq.end()
-                  next()
-                
-                req.pipe myReq
+                    ip = addresses[0]
+                    p = 'http://' + ip + req.url
+                    req.headers['Host'] = req.headers.host
 
+                    util.log chalk.magenta '本地资源不存在，触发透明代理 : '+ip+req.url
+                    request
+                      method: req.method,
+                      url: p,
+                      headers: req.headers
+                    .pipe(res)
             fallback : ()->
               util.log 'fallback', arguments
               # request proxyURL, (error, response, body)->
