@@ -74,7 +74,7 @@ gulp.task 'server', ()->
                 next()
                 return
               catch err
-                if !isLucency
+                if !isLucencyProxy
                   next()
                   return
                 dns.resolve4 req.headers.host, (err, addresses)->

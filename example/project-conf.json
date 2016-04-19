@@ -3,7 +3,7 @@
   "approot": "app",
   "distMode": "dev",
   "domain": "static-am.xiaojukeji.com",
-  "isLucency": true,
+  "isLucencyProxy": true,
   "forceLivereload": true,
   "isRemoveHash": true,
   "https":false,
