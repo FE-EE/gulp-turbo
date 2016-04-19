@@ -14,7 +14,7 @@ forceLivereload = if typeof(pkg.forceLivereload != 'undefined') then !!pkg.force
 # webserver
 gulp.task 'server', ()->
     util.log 'approot',pkg.approot
-    {base,approot,isLucency,routerPath,distPath,wwwroot} = pkg
+    {base,approot,isLucencyProxy,routerPath,distPath,wwwroot} = pkg
 
     # dist
     if pkg.distMode is 'dist'
