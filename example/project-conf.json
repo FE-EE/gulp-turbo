@@ -1,5 +1,5 @@
 {
-  "routerPath": "/",
+  "routerPath": "/abc",
   "approot": "app",
   "distMode": "dev",
   "domain": "static-am.xiaojukeji.com",
@@ -9,6 +9,6 @@
   "https":false,
   "httpPort": 80,
   "serverProxies": [],
-  "proxyPort": 8989,
+  "proxyPort": 8987,
   "proxyRule": []
 }

@@ -14,6 +14,8 @@ rename     = require 'gulp-rename'
 
 turboPkg = global.turboPkg
 projectPkg = global.projectPkg
+
+# loder文件头部注释信息
 banner = ['/**',
   ' * '+projectPkg.name+' v'+projectPkg.version,
   ' * @hash #{hash}',
@@ -24,22 +26,26 @@ banner = ['/**',
 gulp.task 'loder-build', ()->
 	pkg = global.pkg
 	{approot,distPath,wwwroot} = pkg
-	# html中loder引入部分
+	
+	# 需引入loder时， html中loder部分模板
 	loderHTMLC = '<div class="hide script-box"><base><script>document.write(\'<script role="loder" src="#{loderSrc}?_t=\' + new Date().getTime() +\'"><\\\/script>\');</script></div>'
 	
-	# filter
+	# filter 过滤html文件
 	htmlFilter = filter '**/*.html', {restore: true}
 
 	# 记录当前正在处理的页面js主文件
 	jsMainPath = ''
 	return gulp.src approot+'/dist/html/*.html'
 		.pipe useref({
+			# requirejs script data-main 处理
 			requirejs: (content, target, options)->
 				jsMainHashs = global.jsMainHashs
 				cHash = jsMainHashs[target.replace(/(\\+)|(\/+)/g, '')]
 				if cHash
 					_jsMainPath = wwwroot+'/'+target.replace('.js', '-'+cHash+'.js')
 					content = content.replace(/data\-main=['"]{1}[^\s]+['"]{1}/, 'data-main="'+_jsMainPath+'"')
+
+				content = content.replace '..', wwwroot
 				return content
 			requirejs_loder: (content, target, options)->
 				jsMainPath = target

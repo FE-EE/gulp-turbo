@@ -1,4 +1,5 @@
 gulp       = require 'gulp'
+path       = require 'path'
 fs         = require 'fs'
 util       = require 'gulp-util'
 coffee     = require 'gulp-coffee'
@@ -10,7 +11,7 @@ filter     = require 'gulp-filter'
 # coffee编译
 #支持不熟悉coffee的同学直接写js
 gulp.task 'coffee', ()->
-  {approot}  = global.pkg
+  {approot,distPath}  = global.pkg
 
   coffeeFilter = filter '**/*.coffee', {restore: true}
   
@@ -19,8 +20,10 @@ gulp.task 'coffee', ()->
   if fs.existsSync requireConfPath
     requireConf = fs.readFileSync requireConfPath, 'utf8'
     requireConfJson = JSON.parse requireConf
-    # 对config添加baseUrl设置
-    requireConfJson.baseUrl = global.pkg.wwwroot + '/js/'
+    # 设置baseurl
+    requireConfJson.baseUrl = '../js'
+    if distPath is 'dist'
+      requireConfJson.baseUrl = global.pkg.wwwroot + '/js/'
     requireConf = 'require.config(' + JSON.stringify(requireConfJson) + ');'
 
   gulp.src [approot+'/src/coffee/**/*.js', approot+'/src/coffee/**/*.coffee']
@@ -31,8 +34,8 @@ gulp.task 'coffee', ()->
           .on 'error', util.log
     .pipe coffeeFilter.restore
     .pipe through.obj (file, enc, cb)->
+      # 对config添加baseUrl设置
       if /coffee[\/\\]+entry/.test(file.path) && requireConf
-        # console.log file.path
         contents = requireConf + '\n' + file.contents.toString()
         file.contents = new Buffer contents
       this.push file

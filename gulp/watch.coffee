@@ -6,7 +6,7 @@ sequence = require 'gulp-sequence'
 # watcher
 gulp.task 'watch',[],()->
   pkg = global.pkg
-  {approot,wwwroot,distMode} = pkg
+  {approot,distMode} = pkg
 
   if distMode is 'dev'
     # jade
