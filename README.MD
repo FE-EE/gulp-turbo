@@ -1,4 +1,4 @@
-## gulp-Turbo v2.0.10
+## gulp-Turbo v2.0.11
 > 译:涡轮增压器， 前端工作流，为前端开发联调加速。
 
 ### 前端工作流 功能说明
@@ -229,6 +229,7 @@ gulp dist
 
 
 #### change log
+    [04.25] - 编译jade模板(包含html、js)时注入wwwroot参数, dev模式下解除了与domain的耦合
     [04.19] - 修改线上透明代理逻辑，不再需要vhost配置，增加一个是否开启透明代理的开关配置isLucencyProxy
     [03.26] - 添加css autoprefixer
     [03.09] - 调整loder，针对loder逻辑透明化处理，并重新整合静态资源。此次调整新建为2.x.x分支，不兼容之前版本(<2.0.0)。
