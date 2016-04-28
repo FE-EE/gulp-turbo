@@ -2,18 +2,12 @@
   "routerPath": "/",
   "approot": "app",
   "distMode": "dev",
-  "domain": "static.xxxx.com",
-  "vhost":"vhost.xxxx.com",
+  "domain": "static-am.xiaojukeji.com",
+  "isLucencyProxy": true,
   "forceLivereload": true,
   "https":false,
   "httpPort": 80,
-  "serverProxies": [{
-    "source": "/tech-bs",
-    "target": "http://127.0.0.1:8001/tech-bs"
-  }],
+  "serverProxies": [],
   "proxyPort": 8989,
-  "proxyRule": [{
-    "pattern": "static3.xxxx.com/skyfire/ssu/editBefore",
-    "responder": "/Users/kings/app/dev/html/page1.html"
-  }]
+  "proxyRule": []
 }
