@@ -5,7 +5,6 @@
   "domain": "static-am.xiaojukeji.com",
   "isLucencyProxy": true,
   "forceLivereload": true,
-  "isRemoveHash": true,
   "https":false,
   "httpPort": 80,
   "serverProxies": [],

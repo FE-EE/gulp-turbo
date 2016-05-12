@@ -1,4 +1,4 @@
-## gulp-Turbo v2.0.11
+## gulp-Turbo v2.0.12
 > 译:涡轮增压器， 前端工作流，为前端开发联调加速。
 
 ### 前端工作流 功能说明
@@ -8,7 +8,7 @@
 > 1. 提供http server, 支持mock接口数据功能。
 > 1. 提供json文件自动校验
 > 1. 提供80端口代理、转发功能（可用于多项目联调）
-> 1. 提供透明代理（即：线下不存在的资源，直接抓取线上，域名在Vhost属性中设置）
+> 1. 提供透明代理（即：线下不存在的资源，直接抓取线上）
 > 1. 便捷的移动端调试（默认开启htpp代理服务，端口8989,可以代替fiddler或charles.）
 > 1. 支持https
 
@@ -61,12 +61,15 @@ npm init
   //静态资源域名(需要将此域名绑定本服务器hosts)。项目中的静态资源都是以带有域名的绝对路径引用的,将会用到这个配置。
   "domain": "//xxx.bbb.com",
 
-  //配置透明代理时需要用到这个。即：线下没有的文件，将会在这个域名为根去获取内容，要求此域名跟domain指向的静态资源池相同
-  "vhost": "http://xxx.aaa.com.cn",
+  //是否启用透明代理
+  "isLucencyProxy": true,
 
   //自动刷新浏览器。用于调试 true是开启，将会在页面注入一个js用来做实时通讯。
   "forceLivereload": true,
-
+  
+  //是否去除资源文件名重命名为hash后缀的处理，默认是带有hash后缀的。例如：demo-fab59d1421.js
+  "isRemoveHash": false,
+  
   //默认端口
   "httpPort": 80,
 
@@ -193,7 +196,7 @@ gulp dist
 
 ```
 
-#### 提供透明代理（即：线下不存在的资源，直接抓取线上，域名在Vhost属性中设置）
+#### 提供透明代理（即：线下不存在的资源，直接抓取线上）
 
 #### 便捷的移动端调试（默认开启htpp代理服务，端口8989,可以代替fiddler或charles.）
 
@@ -229,6 +232,7 @@ gulp dist
 
 
 #### change log
+    [05.12] - 解决之前loder模式的bug，更新README文档
     [04.25] - 编译jade模板(包含html、js)时注入wwwroot参数, dev模式下解除了与domain的耦合
     [04.19] - 修改线上透明代理逻辑，不再需要vhost配置，增加一个是否开启透明代理的开关配置isLucencyProxy
     [03.26] - 添加css autoprefixer

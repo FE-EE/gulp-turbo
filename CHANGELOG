@@ -1,3 +1,4 @@
+[05.12] - 解决之前loder模式的bug，更新README文档
 [04.25] - 编译jade模板(包含html、js)时注入wwwroot参数, dev模式下解除了与domain的耦合
 [04.19] - 修改线上透明代理逻辑，不再需要vhost配置，增加一个是否开启透明代理的开关配置isLucencyProxy
 [03.26] - 添加css autoprefixer

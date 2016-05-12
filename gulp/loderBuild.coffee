@@ -28,13 +28,11 @@ gulp.task 'loder-build', ()->
 	{approot,distPath,wwwroot} = pkg
 	
 	# 需引入loder时， html中loder部分模板
-	loderHTMLC = '<div class="hide script-box"><base><script>document.write(\'<script role="loder" src="#{loderSrc}?_t=\' + new Date().getTime() +\'"><\\\/script>\');</script></div>'
+	loderHTMLC = '<!--$#{target}$--><div class="hide script-box"><base><script>document.write(\'<script role="loder" src="#{loderSrc}?_t=\' + new Date().getTime() +\'"><\\\/script>\');</script></div>'
 	
 	# filter 过滤html文件
 	htmlFilter = filter '**/*.html', {restore: true}
 
-	# 记录当前正在处理的页面js主文件
-	jsMainPath = ''
 	return gulp.src approot+'/dist/html/*.html'
 		.pipe useref({
 			# requirejs script data-main 处理
@@ -48,9 +46,8 @@ gulp.task 'loder-build', ()->
 				content = content.replace '..', wwwroot
 				return content
 			requirejs_loder: (content, target, options)->
-				jsMainPath = target
-				jsMainRevHash target
 				return loderHTMLC.replace /\#\{loderSrc\}/g, wwwroot+'/js/loder/'+path.basename(target)+'.js'
+								 .replace /\#\{target\}/g, target
 		})
 		.pipe rev()
 		.pipe revReplace({
@@ -65,9 +62,8 @@ gulp.task 'loder-build', ()->
 		.pipe through.obj (file, enc, cb)->
 			contents = file.contents.toString()
 			# 构建loder文件
-			if jsMainPath
-				contents = buildLoder contents, jsMainPath
-				jsMainPath = ''
+			if /\<\!\-\-\$([^$]+)\$\-\-\>/.test(contents)
+				contents = buildLoder contents.replace(/\<\!\-\-\$([^$]+)\$\-\-\>/, ''), RegExp.$1
 			if pkg.isRemoveHash
 				contents = contents.replace(/\-[0-9a-z]{10}\.(js|css)/g, '.$1')
 			file.contents = new Buffer contents
@@ -77,50 +73,9 @@ gulp.task 'loder-build', ()->
 		# html处理 end
 		.pipe gulp.dest approot+'/dist'
 
-
-buildRequirejs = (target)->
-	pkg = global.pkg
-	{approot,distPath,wwwroot} = pkg
-
-	_jsMainPath = approot+'/dist/js/'+target+'.js'
-	buildHashJs = ()->
-		try
-			fs.accessSync _jsMainPath
-			jsMainContent = fs.readFileSync _jsMainPath
-			jsHash = revHash jsMainContent
-			fs.writeFileSync _jsMainPath.replace(/\.js$/, '-'+jsHash+'.js'), jsMainContent
-			cb wwwroot+'/'+target.replace(/\.js$/, '-'+jsHash+'.js')
-		catch e
-			setTimeout ()->
-				buildHashJs()
-			,50
-	buildHashJs()
-
-# publish任务虽然放在了rMin后面，rMin执行后再执行，但存在问题，虽然看似rMin执行完了，但这个时候直接读取dist下js文件时，依然提示不存在，抛出错误
-# 暂时先只好这样了
-jsMainPathMap = {}
-jsMainRevHash = (target)->
-	pkg = global.pkg
-	{approot,distPath,wwwroot} = pkg
-
-	_jsMainPath = approot+'/dist/js/'+target+'.js'
-	buildHashJs = ()->
-		try
-			fs.accessSync _jsMainPath
-			jsMainContent = fs.readFileSync _jsMainPath
-			jsHash = revHash jsMainContent
-			fs.writeFileSync _jsMainPath.replace(/\.js$/, '-'+jsHash+'.js'), jsMainContent
-			jsMainPathMap[target] = jsHash
-		catch e
-			setTimeout ()->
-				buildHashJs()
-			,50
-	buildHashJs()
-
 buildLoder = (content, jsMainPath)->
 	pkg = global.pkg
 	{approot,distPath,wwwroot} = pkg
-
 	loderTpl = [
 		'(function (){',
 			'var conts = #{conts};',
@@ -143,15 +98,17 @@ buildLoder = (content, jsMainPath)->
 		conts.push cont
 		getConts content
 	getJsMainPath = (jsMainPath, cb)->
-		if jsMainPathMap[jsMainPath]
-			cb jsMainPath+'-'+jsMainPathMap[jsMainPath]
+		jsMainHashs = global.jsMainHashs
+		cHash = jsMainHashs[jsMainPath.replace(/(\\+)|(\/+)/g, '')]
+		if cHash
+			cb jsMainPath.replace /(\.js)?$/, '-'+cHash+'$1'
 		else
 			setTimeout ()->
 				getJsMainPath jsMainPath, cb
 			,50
 	content = getConts(content)
 	getJsMainPath jsMainPath, (jspath)->
-		jspath = wwwroot+'/js/'+jspath
+		jspath = wwwroot+'/'+jspath
 		conts.push mainJs.replace(/\#\{mainJs\}/, jspath)
 		mkdir.sync approot+'/dist/js/loder/'
 		loderPath = approot+'/dist/js/loder/'+path.basename(jsMainPath)+'.js'
