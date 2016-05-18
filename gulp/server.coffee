@@ -43,6 +43,12 @@ gulp.task 'server', ()->
 
               util.log 'Received request-->'+orginUrl
 
+              # 解决IE9以上css不识别的问题
+              if /.css([\?#].*)?$/.test orginUrl
+                res.setHeader('Content-Type', 'text/css')
+                next()
+                return
+
               #replace to file path
               disk_path     = url.parse( path.normalize(base+req.url.replace(routerPath, '/'+distPath+'/')) ).pathname
               urlObj        = url.parse(req.url, true)
