@@ -232,6 +232,7 @@ gulp dist
 
 
 #### change log
+    [05.18] - 解决本地静态server在IE9以上访问时css文件未被识别而忽略渲染，导致页面样式出不来的bug
     [05.12] - 解决之前loder模式的bug，更新README文档
     [04.25] - 编译jade模板(包含html、js)时注入wwwroot参数, dev模式下解除了与domain的耦合
     [04.19] - 修改线上透明代理逻辑，不再需要vhost配置，增加一个是否开启透明代理的开关配置isLucencyProxy
