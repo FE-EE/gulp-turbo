@@ -99,7 +99,7 @@ buildLoder = (content, jsMainPath)->
 		getConts content
 	getJsMainPath = (jsMainPath, cb)->
 		jsMainHashs = global.jsMainHashs
-		cHash = jsMainHashs[jsMainPath.replace(/(\\+)|(\/+)/g, '')]
+		cHash = jsMainHashs[jsMainPath.replace(/(\\+)|(\/+)/g, '') + '.js']
 		if cHash
 			cb jsMainPath.replace /(\.js)?$/, '-'+cHash+'$1'
 		else
