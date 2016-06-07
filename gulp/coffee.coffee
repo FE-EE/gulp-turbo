@@ -21,9 +21,9 @@ gulp.task 'coffee', ()->
     requireConf = fs.readFileSync requireConfPath, 'utf8'
     requireConfJson = JSON.parse requireConf
     # 设置baseurl
-    requireConfJson.baseUrl = '../js'
-    if distPath is 'dist'
-      requireConfJson.baseUrl = global.pkg.wwwroot + '/js/'
+    # requireConfJson.baseUrl = '../js'
+    # if distPath is 'dist'
+    requireConfJson.baseUrl = global.pkg.wwwroot + '/js/'
     requireConf = 'require.config(' + JSON.stringify(requireConfJson) + ');'
 
   gulp.src [approot+'/src/coffee/**/*.js', approot+'/src/coffee/**/*.coffee']

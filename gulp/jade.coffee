@@ -23,7 +23,7 @@ gulp.task 'jade', ()->
     .pipe gulp.dest,approot+'/dist/'
 
   LOCALS = 
-    wwwroot: if isDist then wwwroot else '..'
+    wwwroot: wwwroot
 
   gulp.src [approot+'/src/jade/**/*.jade', '!'+approot+'/src/jade/layout/**/*.*']
     .pipe plumber()
