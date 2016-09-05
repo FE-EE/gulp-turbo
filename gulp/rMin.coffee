@@ -10,11 +10,12 @@ rename     = require 'gulp-rename'
 path       = require 'path'
 # md5        = require 'md5'
 revHash    = require 'rev-hash'
-turboCache = require '../lib/turboCache'
+# turboCache = require '../lib/turboCache'
 mkdir      = require 'mkdirp'
 plumber    = require "gulp-plumber"
 header     = require 'gulp-header'
 moment     = require 'moment'
+chmod      = require 'gulp-chmod'
 
 banner = ['/**',
   ' * <%= projectPkg.name %> v<%= projectPkg.version %>',
@@ -29,7 +30,7 @@ gulp.task 'rMin', ()->
   pkg = global.pkg
   {approot,distPath} = pkg
 
-  rjs_cache = turboCache pkg.base
+  # rjs_cache = turboCache pkg.base
   global.last_rMin_Date = moment().format('YYYY-MM-DD HH:mm:ss')
   # js目录下的所有js文件
   # js/entry目录下(包括子目录)的所有js文件，排除loder(_loder.js)伴生文件
@@ -71,27 +72,27 @@ rjs = ( opts ) ->
       removeCombined: true
       findNestedDependencies: true
     .pipe plumber()
-    .pipe through.obj (file, enc, cb)->
-      fileMd5 = revHash file.contents
-      jsMainHashs['js'+filepath.replace(/(\\+)|(\/+)/g, '')] = fileMd5
-      result = rjs_cache.getFile fileMd5, filepath
-      resultMap = rjs_cache.getFile fileMd5+'.map', filepath+'.map'
-      if result
-        _filepath = path.join(opts.dest, filepath)
-        mkdir.sync path.dirname(_filepath)
-        util.log '[js turboCache]: ', filepath, ' [', fileMd5, ']'
-        fs.writeFileSync _filepath.replace(/\./, '-'+fileMd5+'.'), result
-        fs.writeFileSync _filepath, result
-        # maps
-        if resultMap
-          _mapspath = path.dirname(_filepath)+'/.maps/'
-          _mapsname = path.basename(_filepath)
-          mkdir.sync _mapspath
-          # fs.writeFileSync _mapspath+_mapsname.replace(/\.js$/, '_'+fileMd5+'.js.map'), resultMap
-          fs.writeFileSync _mapspath+_mapsname+'.map', resultMap
-      else
-        this.push file
-        cb()
+    # .pipe through.obj (file, enc, cb)->
+    #   fileMd5 = revHash file.contents
+    #   jsMainHashs['js'+filepath.replace(/(\\+)|(\/+)/g, '')] = fileMd5
+    #   result = rjs_cache.getFile fileMd5, filepath
+    #   resultMap = rjs_cache.getFile fileMd5+'.map', filepath+'.map'
+    #   if result
+    #     _filepath = path.join(opts.dest, filepath)
+    #     mkdir.sync path.dirname(_filepath)
+    #     util.log '[js turboCache]: ', filepath, ' [', fileMd5, ']'
+    #     fs.writeFileSync _filepath.replace(/\./, '-'+fileMd5+'.'), result
+    #     fs.writeFileSync _filepath, result
+    #     # maps
+    #     if resultMap
+    #       _mapspath = path.dirname(_filepath)+'/.maps/'
+    #       _mapsname = path.basename(_filepath)
+    #       mkdir.sync _mapspath
+    #       # fs.writeFileSync _mapspath+_mapsname.replace(/\.js$/, '_'+fileMd5+'.js.map'), resultMap
+    #       fs.writeFileSync _mapspath+_mapsname+'.map', resultMap
+    #   else
+    #     this.push file
+    #     cb()
     .pipe sourcemaps.init()
     .pipe uglify
       output:
@@ -99,14 +100,14 @@ rjs = ( opts ) ->
         indent_level: 1
     .pipe header(banner, global)
     .pipe sourcemaps.write '.maps'
-    .pipe through.obj (file, enc, cb)->
-      if !/\.maps/.test(file.path)
-        util.log chalk.magenta '[js compress] ', filepath, ' --> ', file.contents.length, 'bytes [', fileMd5, ']'
-        rjs_cache.setFile file.contents, fileMd5, filepath
-      else
-        rjs_cache.setFile file.contents, fileMd5+'.map', filepath+'.map'
-      this.push file
-      cb()
+    # .pipe through.obj (file, enc, cb)->
+    #   if !/\.maps/.test(file.path)
+    #     util.log chalk.magenta '[js compress] ', filepath, ' --> ', file.contents.length, 'bytes [', fileMd5, ']'
+    #     rjs_cache.setFile file.contents, fileMd5, filepath
+    #   else
+    #     rjs_cache.setFile file.contents, fileMd5+'.map', filepath+'.map'
+    #   this.push file
+    #   cb()
     .pipe chmod 777
     .pipe plumber.stop()
     .pipe gulp.dest dist

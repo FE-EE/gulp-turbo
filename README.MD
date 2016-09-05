@@ -1,4 +1,4 @@
-## gulp-Turbo v2.0.14
+## gulp-Turbo v2.0.17
 > 译:涡轮增压器， 前端工作流，为前端开发联调加速。
 
 ### 前端工作流 功能说明
@@ -66,10 +66,10 @@ npm init
 
   //自动刷新浏览器。用于调试 true是开启，将会在页面注入一个js用来做实时通讯。
   "forceLivereload": true,
-  
+
   //是否去除资源文件名重命名为hash后缀的处理，默认是带有hash后缀的。例如：demo-fab59d1421.js
   "isRemoveHash": false,
-  
+
   //默认端口
   "httpPort": 80,
 
@@ -200,7 +200,7 @@ gulp dist
 
 #### 便捷的移动端调试（默认开启htpp代理服务，端口8989,可以代替fiddler或charles.）
 
-``` 
+```
 // 代理服务器端口。 通常用于调试移动端，抓包，替换请求. 类似fiddler或者charlse
   "proxyPort": 8989,
 
@@ -214,7 +214,7 @@ gulp dist
     "responder": "/Users/kings/didi/prod/fe-scaffold-v1/app/dev/html/page1.html"
   }]
 
-``` 
+```
 
 #### 支持https
 
@@ -232,6 +232,7 @@ gulp dist
 
 
 #### change log
+    [09.05] - 修改gulp任务生成文件的权限，去掉turboCache缓存机制
     [05.18] - 解决本地静态server在IE9以上访问时css文件未被识别而忽略渲染，导致页面样式出不来的bug
     [05.12] - 解决之前loder模式的bug，更新README文档
     [04.25] - 编译jade模板(包含html、js)时注入wwwroot参数, dev模式下解除了与domain的耦合
@@ -246,7 +247,7 @@ gulp dist
     [01.08] - 修复透明代理
     [01.04] - 减掉$CONFIG需要指定entryPath的配置，修改页面loder伴生文件的引用，入口文件将由页面引用的loder伴生文件名决定。
             - 去掉dist模式时的livereload
-    
+
     [2015~]
     [12.29] - 新增静态资源加载器（js部分）
             - 新增entry文件夹，支持子目录

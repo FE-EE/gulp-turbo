@@ -11,6 +11,7 @@ mkdir      = require 'mkdirp'
 header     = require 'gulp-header'
 filter     = require 'gulp-filter'
 rename     = require 'gulp-rename'
+chmod      = require 'gulp-chmod'
 
 turboPkg = global.turboPkg
 projectPkg = global.projectPkg

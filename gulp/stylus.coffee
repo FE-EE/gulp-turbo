@@ -10,6 +10,7 @@ plumber = require "gulp-plumber"
 gulpif = require "gulp-if"
 autoprefixer = require 'gulp-autoprefixer'
 minifyCSS = require 'gulp-minify-css'
+chmod      = require 'gulp-chmod'
 
 # stylus - with sourcemaps
 gulp.task 'stylus', ()->
