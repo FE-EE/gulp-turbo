@@ -30,5 +30,6 @@ gulp.task 'stylus', ()->
       this.push file
       cb()
     # .pipe gulpif(isCompress, sourcemaps.write('.maps'))
+    .pipe chmod 777
     .pipe plumber.stop()
     .pipe gulp.dest distPath+'/css/'

@@ -26,10 +26,10 @@ banner = ['/**',
 gulp.task 'loder-build', ()->
 	pkg = global.pkg
 	{approot,distPath,wwwroot} = pkg
-	
+
 	# 需引入loder时， html中loder部分模板
 	loderHTMLC = '<!--$#{target}$--><div class="hide script-box"><base><script>document.write(\'<script role="loder" src="#{loderSrc}?_t=\' + new Date().getTime() +\'"><\\\/script>\');</script></div>'
-	
+
 	# filter 过滤html文件
 	htmlFilter = filter '**/*.html', {restore: true}
 
@@ -70,6 +70,7 @@ gulp.task 'loder-build', ()->
 			this.push file
 			cb()
 		.pipe htmlFilter.restore
+    .pipe chmod 777
 		# html处理 end
 		.pipe gulp.dest approot+'/dist'
 

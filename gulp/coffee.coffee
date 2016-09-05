@@ -7,6 +7,7 @@ through    = require 'through2'
 sequence   = require 'gulp-sequence'
 plumber    = require "gulp-plumber"
 filter     = require 'gulp-filter'
+chmod      = require 'gulp-chmod'
 
 # coffee编译
 #支持不熟悉coffee的同学直接写js
@@ -14,7 +15,7 @@ gulp.task 'coffee', ()->
   {approot,distPath}  = global.pkg
 
   coffeeFilter = filter '**/*.coffee', {restore: true}
-  
+
   # 读取require config配置json数据
   requireConfPath = approot + '/src/coffee/require-conf.json'
   if fs.existsSync requireConfPath
@@ -40,5 +41,6 @@ gulp.task 'coffee', ()->
         file.contents = new Buffer contents
       this.push file
       cb()
+    .pipe chmod 777
     .pipe plumber.stop()
     .pipe gulp.dest approot+'/dev/js'

@@ -28,7 +28,7 @@ rjs_cache = {}
 gulp.task 'rMin', ()->
   pkg = global.pkg
   {approot,distPath} = pkg
-  
+
   rjs_cache = turboCache pkg.base
   global.last_rMin_Date = moment().format('YYYY-MM-DD HH:mm:ss')
   # js目录下的所有js文件
@@ -107,6 +107,7 @@ rjs = ( opts ) ->
         rjs_cache.setFile file.contents, fileMd5+'.map', filepath+'.map'
       this.push file
       cb()
+    .pipe chmod 777
     .pipe plumber.stop()
     .pipe gulp.dest dist
     .pipe rename (path)->
