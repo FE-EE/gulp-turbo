@@ -11,6 +11,10 @@ chalk           = require 'chalk'
 through         = require 'through2'
 forceLivereload = if typeof(pkg.forceLivereload != 'undefined') then !!pkg.forceLivereload else distMode=='dev'
 
+querystring     = require 'querystring'
+
+PATH_REDIRECT = '/internal/redirect'
+
 # webserver
 gulp.task 'server', ()->
     util.log 'approot',pkg.approot
@@ -37,6 +41,16 @@ gulp.task 'server', ()->
 
             middleware: (req, res, next)->
               urlObj    = url.parse(req.url, true)
+              
+              if urlObj.pathname == PATH_REDIRECT
+                redirectParams = querystring.parse((urlObj.search || '').substr(1))
+                irurl = redirectParams.irurl;
+                if (irurl)
+                  delete redirectParams.irurl
+                  res.statusCode = 302
+                  res.setHeader('Location', irurl + '?' + querystring.stringify(redirectParams))
+                  res.end('')
+
               urlObj.protocol or= 'http'
               orginUrl = urlObj.protocol+wwwroot+req.url
 
