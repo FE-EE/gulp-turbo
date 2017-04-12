@@ -40,6 +40,8 @@ gulp.task 'server', ()->
               path:distPath
 
             middleware: (req, res, next)->
+              res.setHeader('Access-Control-Allow-Origin', '*')
+
               urlObj    = url.parse(req.url, true)
               
               if urlObj.pathname == PATH_REDIRECT
@@ -50,6 +52,7 @@ gulp.task 'server', ()->
                   res.statusCode = 302
                   res.setHeader('Location', irurl + '?' + querystring.stringify(redirectParams))
                   res.end('')
+                  return
 
               urlObj.protocol or= 'http'
               orginUrl = urlObj.protocol+wwwroot+req.url
